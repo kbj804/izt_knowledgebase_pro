@@ -21,6 +21,7 @@ def reduce_num(text_array):
         i = list(filter(str.isdigit, line))
         # 배열 검사
         if i:
+            # 숫자 있는 값만 추출 -> 그리고 페이지가 100페이지(3자리) 이상 가는건 한번 더 pop 해줘야 함...ㅠㅠ 나중에처리
             i.pop()
             i.pop()
             index_list.append(i)

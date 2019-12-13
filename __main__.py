@@ -1,7 +1,12 @@
 from docx2python import docx2python
 import pandas as pd 
 import re
+import json
+from collections import OrderedDict
+
 from make_dic import make_dictionary
+
+
 
 def remove_blank(text_array):
     texts = []
@@ -22,6 +27,10 @@ def generate_doc(doc_body, doc_len):
         temp_list =[]
         last_list_value = contents_lists[-1]
         result_list = []
+
+        # title 이름 저장
+        
+
         # 사전(목차)에 있는 단어인지 비교 후 처리
         for content in contents_lists:
             if content in index_dictionary:
@@ -42,20 +51,60 @@ def generate_doc(doc_body, doc_len):
                 temp_list.append(content)
         return result_list
                     
-                 
+def make_table_dic(table_list):
+    tables = OrderedDict()
+    #table_data = OrderedDict()
+
+    for lists in table_list:
+        tables[lists[0]]=lists[1]
+    #table_dic = dict(zip(*[alist,blist]))
+    
+    return tables
+
 def generate_table(doc_body, doc_len):
     # 테이블 처리
     table_list=[]
+    
     for i in range(doc_len):
         filed_list=[]
         for k in range(len(doc_body[i])):
             filed_list.append(doc_body[i][k][0])
         table_list.append(filed_list)
-    
+    #table_dic = make_table_dic(table_list)
+
     return table_list
 
-def generate_doc_json(content_list):
-    pass
+
+
+
+
+def generate_doc_to_json(index_len, contents_list, main_title, sub_title, title, data_type):
+    json_data = OrderedDict()
+    #contents_data = OrderedDict()
+
+    content_list=[]
+    
+    for text in contents_list:
+        json_data["data_type"] = data_type
+        if index_len == 1:
+            json_data["main_title"] = main_title
+            json_data["sub_title"] = sub_title
+            json_data["title"] = title
+        elif index_len ==2 :
+            json_data["main_title"] = main_title
+            json_data["sub_title"] = sub_title 
+            json_data["title"] = title
+        elif index_len ==3 :
+            json_data["main_title"] = main_title
+            json_data["sub_title"] = sub_title
+            json_data["title"] = title
+        
+        content_list.append(text)
+        json_data["content"] = content_list
+        
+
+
+    print(json.dumps(json_data, ensure_ascii=False, indent="\t") )
 
 
 
@@ -67,24 +116,45 @@ if __name__ == "__main__":
 
     # 문서 로드 
     doc_result = docx2python(r"./doc_data/test.docx")
+    main_title =''
+    sub_title =''
+    title=''
+    index_len=''
 
     for j in range(1,len(doc_result.body)):
         doc_body = doc_result.body[j]
         doc_len = len(doc_body)
 
+        
         if doc_len == 1:
             # 문서 스플릿
             doc_list = generate_doc(doc_body, doc_len)
             for i, content in enumerate(doc_list):
-                generate_doc_json(content)
-                print('ID = {0}0{1}'.format(str(j),str(i)))
-                print(content)
+                for text in content:
+                    if text in index_dictionary:
+                        index = index_dictionary[text]
+                        index_len = len(index)
+                        if index_len == 1:
+                            main_title = text
+                            sub_title = text
+                            title = text
+
+                        elif index_len ==2 :
+                            sub_title = text
+                            title = text
+
+                        elif index_len ==3 :
+                            title = text
+                generate_doc_to_json(index_len, content, main_title, sub_title, title, "string")
+                
+                #print('ID = {0}0{1}'.format(str(j),str(i)))
+                #print(content)
         else:
             print('ID = {0}'.format(str(j)))
             # 테이블
-            print("This is TABLE, OK?")
             table = generate_table(doc_body, doc_len)
             print(table)
+            generate_doc_to_json(index_len, table, main_title, sub_title, title, "table")
 
                 
 
