@@ -16,25 +16,36 @@ def remove_blank_and_reg(text_array):
 
 def reduce_num(text_array):
     texts =[]
+    index_list =[]
     for line in text_array:
-        i = filter(str.isdigit, line)
-        if i is not None:
+        i = list(filter(str.isdigit, line))
+        # 배열 검사
+        if i:
+            i.pop()
+            i.pop()
+            index_list.append(i)
             remove_digit = re.sub('[[\d\]+]', '', line)
             texts.append(remove_digit)
-    return texts
+    return texts, index_list
+    
+
+
 
 def inverse_dic(text_array):
     dic = dict(zip(range(len(text_array)), text_array))
     inv_dic = {v: k for k, v in dic.items()}
+
     return inv_dic
 
 def make_dictionary():
     doc_result = docx2python(r"./doc_data/contents_list.docx")
     doc_body_for_dic = doc_result.body[0][0][0]
     first = remove_blank_and_reg(doc_body_for_dic)
-    second = reduce_num(first)
+    contents_list, index_list = reduce_num(first)
 
-    # 목차를 이용하여 사전 생성
-    list_dic = inverse_dic(second)
+    # 목차와 index 를 이용하여 사전 생성
+    list_dic ={ key:value for key, value in zip(contents_list ,index_list)}
+    #list_dic = inverse_dic(second)
     print(list_dic)
+    
     return list_dic
