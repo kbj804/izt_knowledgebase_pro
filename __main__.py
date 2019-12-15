@@ -102,10 +102,8 @@ def generate_doc_to_json(index_len, contents_list, main_title, sub_title, title,
         content_list.append(text)
         json_data["content"] = content_list
         
-
-
-    print(json.dumps(json_data, ensure_ascii=False, indent="\t") )
-
+    #return json.dumps(json_data, ensure_ascii=False, indent="\t")
+    return json_data
 
 
 
@@ -113,9 +111,9 @@ def generate_doc_to_json(index_len, contents_list, main_title, sub_title, title,
 if __name__ == "__main__":
     # 목차를 이용하여 사전 생성
     index_dictionary = make_dictionary()
-
+    json_file = []
     # 문서 로드 
-    doc_result = docx2python(r"./doc_data/test.docx")
+    doc_result = docx2python(r"./doc_data/iGate Introduction-6차.docx")
     main_title =''
     sub_title =''
     title=''
@@ -145,17 +143,20 @@ if __name__ == "__main__":
 
                         elif index_len ==3 :
                             title = text
-                generate_doc_to_json(index_len, content, main_title, sub_title, title, "string")
+                json_data = generate_doc_to_json(index_len, content, main_title, sub_title, title, "string")
+                json_file.append(json_data)
                 
-                #print('ID = {0}0{1}'.format(str(j),str(i)))
-                #print(content)
+                
         else:
             print('ID = {0}'.format(str(j)))
             # 테이블
             table = generate_table(doc_body, doc_len)
-            print(table)
-            generate_doc_to_json(index_len, table, main_title, sub_title, title, "table")
-
+            #print(table)
+            json_data= generate_doc_to_json(index_len, table, main_title, sub_title, title, "table")
+            json_file.append(json_data)
+    
+    with open(r"./doc_data/plsplsplsplsplspl.json",'w',encoding='utf-8') as make_file:
+        json.dump(json_file, make_file,ensure_ascii=False, indent="\t")
                 
 
 
